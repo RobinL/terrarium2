@@ -3,7 +3,7 @@
 //The bugs will be separate objects
 
 
-var data = (function createTerranium(h, w) {
+function terrariumData(w,h) {
 	var wallProbability = 0.1;
 	var bugProbability = 0.2;
 
@@ -31,10 +31,14 @@ var data = (function createTerranium(h, w) {
 
 	return flatTerrarium;
 
-})(20,20);
+};
 
 
-debugger;
+
+
+//*************
+//Point class
+//*************
 
 //Point constructor
 function Point(x,y) {
@@ -53,6 +57,11 @@ Point.prototype.isEqualTo = function(other) {
 };
 
 
+//*************
+//Grid class
+//*************
+
+
 /*Whenever you find yourself about to mix data representation and specific problem code IN ONE object it's a good idea to try and put the data representation code in a separate type of object
 */
 
@@ -66,7 +75,7 @@ Grid.prototype.valueAt = function(point) {
 	return this.cells[point.y * this.width + point.x]
 }
 
-Grid.prototype.setValueAt(point,value) {
+Grid.prototype.setValueAt = function(point,value) {
 	this.cells[point.y * this.width + point.x] = value;
 }
 
@@ -89,6 +98,12 @@ Grid.prototype.each = function(action) {
 		}
 	}
 }
+
+
+//*************
+//Dictionary class
+//*************
+
 
 function Dictionary(startValues) {
 	 this.values = startValues || {};
@@ -121,10 +136,70 @@ var directions = new Dictionary(
    "w":  new Point(-1,  0),
    "nw": new Point(-1, -1)});
 
+
+
+ 
+
+
+ //*************
+//Terrarium class
+//*************
+
+function Terrarium(w,h) {
+
+
+	var data = terrariumData(w,h);
+
+	var grid = new Grid(w,h);
+
+	for (var i = 0; i < h; i++) {
+		for (var j = 0; j < w; j++) {
+			grid.setValueAt(new Point(j,i), data[i*w+j])
+
+
+		};
+	};
+
+	this.grid = grid;
+
+
+
+
+}
+
+
+Terrarium.prototype.toString = function(){
+
+}
+
+
+
+
+
+
+
+var wall = {};
+wall.character = "#";
+function characterFromElement(element) {
+  if (element == undefined)
+    return " ";
+  else
+    return element.character;
+}
+
+
+
+ //*************
+//Stupidbug class
+//*************
+
  function StupidBug() {};
 
  StupidBug.prototype.act = function(surroundings) {
- 	return {type: "move", direction "s"}
+ 	return {type: "move", direction: "s"}
  }
 
- var wall = {};
+StupidBug.prototype.character = "o";
+
+
+myTerr = new Terrarium(5,3)  //width 5 height 3
