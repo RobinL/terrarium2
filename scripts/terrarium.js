@@ -35,6 +35,11 @@ function terrariumData(w,h) {
 
 
 
+function bind(func, object) {
+  return function(){
+    return func.apply(object, arguments);
+  };
+}
 
 //*************
 //Point class
@@ -177,19 +182,50 @@ function elementFromCharacter(character) {
 
 Terrarium.prototype.listActingCreatures = function() {
 	var found = [];
-	_.each(this.grid, function(element,index){
+	grid.each(function(point, value){
 
 		if (element!=undefined && element.act) {
 			found.push({object:element, point:point})
 		}
 		
 	})
+	return found;
+}
+
+Terrarium.prototype.listSurroundings = function(center) {
+	var result = {};
+	var grid = this.grid;
+
+	directions.each(function(name,direction) {
+		var place = center.add(direction);
+		if (grid.isInside(place)) {
+			result[name] = characterFromElement(grid.valueAt(place));
+		} else {
+			result[name] = "#"
+		}
+	})
+	return result;
 }
 
 
+Terrarium.prototype.processCreature = function(creature) {
+	var surroundings = this.listSurroundings(creature.point);
+	var action = creature.object.act(surroundings);
+
+	if (action.type == "move" && directions.contains(action.direction)) {
+		var to = creature.point.add(directions.lookup(action.direction));
+		if (this.grid.isInside(to) && this.grid.valueAt(to) == undefined) {
+			this.grid.moveValue(creature.point,to);
+		}
+	} else {
+		throw new Error("Unsupported action: " + action.type);
+	}
+}
 
 
-
+Terrarium.prototype.step = function() {
+	_.each(this.listActingCreatures(), bind(this.processCreature,this)) //take the funciton this.processCreature and apply it in the 'this' context of the terranium.  Binding needed because we're in _.each
+}
 
 
 var wall = {};
