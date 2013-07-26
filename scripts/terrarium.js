@@ -99,6 +99,12 @@ Grid.prototype.each = function(action) {
 	}
 }
 
+// RL added method
+
+Grid.prototype.arrayIndexToPoint = function(num) {
+	return new Point(num%this.width,Math.floor(num/this.width))
+}
+
 
 //*************
 //Dictionary class
@@ -147,14 +153,13 @@ var directions = new Dictionary(
 
 function Terrarium(w,h) {
 
-
 	var data = terrariumData(w,h);
 
 	var grid = new Grid(w,h);
 
 	for (var i = 0; i < h; i++) {
 		for (var j = 0; j < w; j++) {
-			grid.setValueAt(new Point(j,i), data[i*w+j])
+			grid.setValueAt(new Point(j,i), elementFromCharacter(data[i*w+j]))
 
 
 		};
@@ -162,14 +167,23 @@ function Terrarium(w,h) {
 
 	this.grid = grid;
 
-
-
-
 }
 
+function elementFromCharacter(character) {
+	if (character == " ") return undefined;
+	else if (character == "#") return wall;
+	else if (character == "o") return new StupidBug();
+}
 
-Terrarium.prototype.toString = function(){
+Terrarium.prototype.listActingCreatures = function() {
+	var found = [];
+	_.each(this.grid, function(element,index){
 
+		if (element!=undefined && element.act) {
+			found.push({object:element, point:point})
+		}
+		
+	})
 }
 
 
@@ -202,4 +216,4 @@ function characterFromElement(element) {
 StupidBug.prototype.character = "o";
 
 
-myTerr = new Terrarium(5,3)  //width 5 height 3
+myTerr = new Terrarium(50,30)  //width 5 height 3

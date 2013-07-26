@@ -12,7 +12,7 @@ The terrarium uses the grid object as a datastore
 Stores the directions in which travel is possible
 
 *Grid
-Stores the current state of the terrarium.  
+Stores the current state of the terrarium in an array of objects.
 Limited number of methods for changing grid data
 
 *Points
