@@ -27,8 +27,6 @@ function terrariumData(w,h) {
 		});
 	});
 
-
-
 	return flatTerrarium;
 
 };
@@ -125,7 +123,7 @@ Dictionary.prototype.store = function(name, value) {
 }
 
 Dictionary.prototype.lookup = function(name) {
-	return this.value[name];
+	return this.values[name];
 }
 
 Dictionary.prototype.contains = function(name){
@@ -182,10 +180,11 @@ function elementFromCharacter(character) {
 
 Terrarium.prototype.listActingCreatures = function() {
 	var found = [];
-	grid.each(function(point, value){
 
-		if (element!=undefined && element.act) {
-			found.push({object:element, point:point})
+	this.grid.each(function(point, value){
+
+		if (value!=undefined && value.act) {
+			found.push({object:value, point:point})
 		}
 		
 	})
@@ -209,6 +208,7 @@ Terrarium.prototype.listSurroundings = function(center) {
 
 
 Terrarium.prototype.processCreature = function(creature) {
+
 	var surroundings = this.listSurroundings(creature.point);
 	var action = creature.object.act(surroundings);
 
@@ -242,8 +242,14 @@ function characterFromElement(element) {
  //*************
 //Stupidbug class
 //*************
+var stupidBugCount = 0;
+function StupidBug() {
 
- function StupidBug() {};
+	this.id = "sb"+stupidBugCount;
+	stupidBugCount++;
+
+
+};
 
  StupidBug.prototype.act = function(surroundings) {
  	return {type: "move", direction: "s"}

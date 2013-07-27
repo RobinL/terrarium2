@@ -28,35 +28,93 @@ this.svg = svgelem.append("svg")
 
 }
 
+TDrawKit.prototype.gridToD3Data = function() {
+
+		returnArray = [];
+
+	this.terr.grid.each(function(point,valueatpoint) {
+		returnArray.push({point: point, object: valueatpoint})
+	})
+
+	return returnArray;
+}
+
 TDrawKit.prototype.drawFixedElements = function() {
 
-	that = this;
+	var that = this;
+	var d3data = this.gridToD3Data();
 
-	var fixedElements = this.svg.selectAll(".fixedElements").data(this.terr.grid.cells);
+	var fixedElements = this.svg.selectAll(".fixedElements").data(d3data);
 
 	fixedElements.enter()
 		.append("rect")
-		.attr("x", function(d,i) {
-			var p = that.terr.grid.arrayIndexToPoint(i);
-			return p.x*that.globals.squareSize;	
+		.attr("x", function(d) {
+			return d.point.x*that.globals.squareSize;	
 		})
 		.attr("y", function(d,i) {
-			var p = that.terr.grid.arrayIndexToPoint(i);
-			return p.y*that.globals.squareSize;	
+			return d.point.y*that.globals.squareSize;	
 		})
 		.attr("height",that.globals.squareSize)
 		.attr("width", that.globals.squareSize)
 		.attr("fill", function(d) {
-			if (d && d.character == wall.character)  return "#000000";
+			if (characterFromElement(d.object) == wall.character)  return "#000000";
 			else return "#0EB8C0"		
 		})
 		.attr("opacity", function(d,i) {
-
-			var p = that.terr.grid.arrayIndexToPoint(i);
-
-			if (d && d.character == wall.character)  return 1;
-			else return p.y*0.2 / that.terr.grid.height;		
+			if (characterFromElement(d.object) == wall.character)  return 1;
+			else return d.point.y*0.2 / that.terr.grid.height;		
 		})
+		.attr("stroke-width", 1)
+		.attr("stroke", "black");
+
+}
+
+TDrawKit.prototype.drawMovingElements = function() {
+
+	var that = this;
+
+	var d3data = this.terr.listActingCreatures();
+	
+	if (d3.select(".moveGroup").empty()) {
+		var g = this.svg.append("g")
+					.attr("class", "moveGroup")
+	} else {
+		var g = d3.select(".moveGroup")
+	}
+
+
+	var movingElements = g.selectAll(".movingElements")
+							.data(d3data, function(d) {
+								return d.object.id;
+							});
+
+	movingElements.enter()
+		.append("circle")
+		.attr("cx", function(d) {
+			return d.point.x*that.globals.squareSize+that.globals.squareSize/2;	
+		})
+		.attr("cy", function(d,i) {
+			return d.point.y*that.globals.squareSize+that.globals.squareSize/2;	
+		})
+		.attr("r",0)
+		.attr("fill", "#31F015")
+		.attr("opacity", 0.001)
+		.attr("stroke-width", 1)
+		.attr("stroke", "black")
+		.attr("class","movingElements");
+
+	movingElements
+		.transition()
+		.duration(2000)
+		.attr("cx", function(d) {
+			return d.point.x*that.globals.squareSize+that.globals.squareSize/2;	
+		})
+		.attr("cy", function(d,i) {
+			return d.point.y*that.globals.squareSize+that.globals.squareSize/2;	
+		})
+		.attr("r",that.globals.squareSize/3)
+		.attr("fill", "#5BE738")
+		.attr("opacity", 0.3)
 		.attr("stroke-width", 1)
 		.attr("stroke", "black");
 
@@ -64,21 +122,3 @@ TDrawKit.prototype.drawFixedElements = function() {
 
 
  
-// Drawing can only be done after docready
-$(function() {
-
-
-terrDraw = new TDrawKit(myTerr,d3.select("#svgHolder"));
-
-terrDraw.drawFixedElements();
-
-terrDraw.drawMovingElements();
-
-setTimeout(function() {
-	myTerr.step;
-	terrDraw.drawMovingElements();
-}, 1000)
-
-
-
-})
