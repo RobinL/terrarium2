@@ -116,7 +116,10 @@ TDrawKit.prototype.drawMovingElements = function() {
 			return d.point.y*that.globals.squareSize+that.globals.squareSize/2;	
 		})
 		.attr("r",that.globals.squareSize/3)
-		.attr("fill", "#5BE738")
+		.attr("fill", function(d,i) {
+			debugger;
+			return d.object.colour;
+		})
 		.attr("opacity", 0.3)
 		.attr("stroke-width", 1)
 		.attr("stroke", "black")

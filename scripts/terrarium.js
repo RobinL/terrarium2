@@ -7,12 +7,14 @@ function terrariumData(w,h) {
 	var wallProbability = 0.1;
 	var bugProbability = 0.05;
 
+	var bugtypes = ["%","o"]
+
 	var terrariumArray = [];
 	for (var i = 0; i < h; i++) {
 		terrariumArray[i] = [];
 		for (var j = 0; j < w; j++) {	
 			if (i===0||j===0||i===h-1||j===w-1)	terrariumArray[i][j] = "#";
-			else (Math.random()<wallProbability)?terrariumArray[i][j] = "#":terrariumArray[i][j] = "";
+			else (Math.random()<wallProbability)?terrariumArray[i][j] = "#":terrariumArray[i][j] = " ";
 		}
 	}
 
@@ -21,12 +23,12 @@ function terrariumData(w,h) {
 	_.each(terrariumArray, function(element1,index1, array1){
 		_.each(element1, function(element2,index2,array2) {
 			if (element2!=="#" && Math.random()<bugProbability) {
-				array2[index2] = "o";
+				array2[index2] = _.shuffle(bugtypes)[0];
 			}
 			flatTerrarium.push(array2[index2]);
 		});
 	});
-
+	
 	return flatTerrarium;
 
 };
@@ -179,7 +181,8 @@ function Terrarium(w,h) {
 function elementFromCharacter(character) {
 	if (character == " ") return undefined;
 	else if (character == "#") return wall;
-	else if (character == "o") return new StupidBug();
+	else if (creatureTypes.contains(character)) return new (creatureTypes.lookup(character))();
+	else throw new Error("unknown character:" + character)
 }
 
 Terrarium.prototype.listActingCreatures = function() {
@@ -258,12 +261,53 @@ function StupidBug() {
 
 };
 
- StupidBug.prototype.act = function(surroundings) {
+StupidBug.prototype.act = function(surroundings) {
  	
  	return {type: "move", direction: directions.random()}
  }
 
 StupidBug.prototype.character = "o";
+
+StupidBug.prototype.colour = "#44F211";
+
+ //*************
+//BouncingBug class
+//*************
+var bouncingBugCount = 0;
+function BouncingBug() {
+  this.direction = "ne";
+  this.id = "bb"+bouncingBugCount;
+	bouncingBugCount++;
+
+}
+BouncingBug.prototype.act = function(surroundings) {
+  if (surroundings[this.direction] != " ")
+    this.direction = (this.direction == "ne" ? "sw" : "ne");
+  return {type: "move", direction: this.direction};
+};
+BouncingBug.prototype.character = "%";
+BouncingBug.prototype.colour = "#0309E2";
+
+
+
+
+ //*************
+//Define creatures
+//*************
+
+var creatureTypes = new Dictionary();
+creatureTypes.register = function(constructor) {
+	this.store(constructor.prototype.character,constructor)
+};
+
+creatureTypes.register(StupidBug)
+creatureTypes.register(BouncingBug);
+
+
+
+
+
+
 
 
 myTerr = new Terrarium(50,30)  //width 5 height 3
