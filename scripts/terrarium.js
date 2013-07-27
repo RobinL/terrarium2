@@ -5,7 +5,7 @@
 
 function terrariumData(w,h) {
 	var wallProbability = 0.1;
-	var bugProbability = 0.2;
+	var bugProbability = 0.05;
 
 	var terrariumArray = [];
 	for (var i = 0; i < h; i++) {
@@ -135,6 +135,10 @@ Dictionary.prototype.each = function(action) {
 	_.forEach(this.values,action)
 };
 
+Dictionary.prototype.random = function() {
+	return _.shuffle(_.keys(this.values))[0]
+}
+
 var directions = new Dictionary(
   {"n":  new Point( 0, -1),
    "ne": new Point( 1, -1),
@@ -195,7 +199,8 @@ Terrarium.prototype.listSurroundings = function(center) {
 	var result = {};
 	var grid = this.grid;
 
-	directions.each(function(name,direction) {
+	directions.each(function(direction,name) {
+	
 		var place = center.add(direction);
 		if (grid.isInside(place)) {
 			result[name] = characterFromElement(grid.valueAt(place));
@@ -203,6 +208,7 @@ Terrarium.prototype.listSurroundings = function(center) {
 			result[name] = "#"
 		}
 	})
+
 	return result;
 }
 
@@ -210,6 +216,7 @@ Terrarium.prototype.listSurroundings = function(center) {
 Terrarium.prototype.processCreature = function(creature) {
 
 	var surroundings = this.listSurroundings(creature.point);
+
 	var action = creature.object.act(surroundings);
 
 	if (action.type == "move" && directions.contains(action.direction)) {
@@ -252,7 +259,8 @@ function StupidBug() {
 };
 
  StupidBug.prototype.act = function(surroundings) {
- 	return {type: "move", direction: "s"}
+ 	
+ 	return {type: "move", direction: directions.random()}
  }
 
 StupidBug.prototype.character = "o";

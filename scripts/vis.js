@@ -103,9 +103,12 @@ TDrawKit.prototype.drawMovingElements = function() {
 		.attr("stroke", "black")
 		.attr("class","movingElements");
 
+	var lastElem = movingElements[0].length -1
+
 	movingElements
 		.transition()
-		.duration(2000)
+		.duration(500)
+		.ease("linear")
 		.attr("cx", function(d) {
 			return d.point.x*that.globals.squareSize+that.globals.squareSize/2;	
 		})
@@ -116,7 +119,20 @@ TDrawKit.prototype.drawMovingElements = function() {
 		.attr("fill", "#5BE738")
 		.attr("opacity", 0.3)
 		.attr("stroke-width", 1)
-		.attr("stroke", "black");
+		.attr("stroke", "black")
+		.each('end', function(d,i) {
+		
+			if (i == lastElem) {
+
+				setTimeout(function() {
+				
+					that.terr.step();
+					that.drawMovingElements()}, 
+					0);
+
+			}
+
+		})
 
 }
 

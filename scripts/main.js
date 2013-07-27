@@ -8,10 +8,10 @@ terrDraw.drawFixedElements();
 
 terrDraw.drawMovingElements();
 
-setInterval(function() {
+setTimeout(function() {
    myTerr.step();
    terrDraw.drawMovingElements();
-}, 3000)
+}, 1000)
 
 
 
